@@ -1,0 +1,27 @@
+# Ringtone Audio Files Required
+
+To make the fake call feature work with realistic ringtone sounds, you need to add the following audio files to this directory:
+
+1. ringtone.mp3 - Main ringtone sound (3-5 seconds loop)
+2. beep.mp3 - Fallback beep sound (1-2 seconds)
+
+## Recommended Ringtone Characteristics:
+- Duration: 3-5 seconds (will loop automatically)
+- Format: MP3
+- Quality: 128kbps or higher
+- Volume: Medium to high (not too loud)
+- Style: Classic phone ringtone or modern notification sound
+
+## Free Ringtone Sources:
+- Freesound.org
+- Zapsplat.com
+- YouTube Audio Library
+- System ringtones from your phone
+
+## Alternative Implementation:
+If you don't want to add audio files, the app will use:
+- HapticFeedback.heavyImpact() as fallback
+- System vibration patterns
+- Visual animations for ringtone effect
+
+The ringtone service is already implemented and will work with or without audio files.

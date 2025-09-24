@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:ai_women_safety/data/services/emotional_support_service.dart';
 
 class GeminiService {
   final String? apiKey = dotenv.env['GEMINI_API_KEY'];
+  final EmotionalSupportService _emotionalService = EmotionalSupportService();
 
   Future<String> sendMessage({
     required String message,
@@ -17,8 +19,16 @@ class GeminiService {
       "https://generativelanguage.googleapis.com/v1/models/$model:generateContent?key=$apiKey",
     );
 
-    // Use the refined prompt
-    final prompt = _refinedCalmPrompt(message);
+    // Analyze emotional context
+    final emotionalContext = _emotionalService.analyzeEmotionalContext(message);
+
+    // Check for emergency situations
+    if (_emotionalService.needsImmediateSupport(message)) {
+      return _emotionalService.getEmergencySupportMessage();
+    }
+
+    // Use the refined prompt with emotional context
+    final prompt = _refinedCalmPrompt(message, emotionalContext);
 
     try {
       final response = await http.post(
@@ -35,10 +45,13 @@ class GeminiService {
           ],
           "generationConfig": {
             "temperature":
-                0.8, // Slightly higher for more empathetic/creative responses
+                0.9, // Higher for more creative and empathetic responses
             "topP": 0.95,
             "topK": 40,
-            "maxOutputTokens": 256,
+            "maxOutputTokens":
+                300, // Slightly longer for more detailed responses
+            "candidateCount": 1,
+            "stopSequences": [],
           },
         }),
       );
@@ -58,26 +71,47 @@ class GeminiService {
     }
   }
 
-  /// A more direct and refined prompt for the desired persona and task
-  String _refinedCalmPrompt(String userMessage) {
+  /// Enhanced prompt for a loving, supportive AI companion
+  String _refinedCalmPrompt(String userMessage, String emotionalContext) {
     return """
-You are a warm, empathetic AI assistant for a women's safety application. Respond to the user's distress by offering one simple, immediate action to help them feel safer. Your purpose is to provide immediate emotional support and a sense of safety to users in distress. Your reply must be short and meaningful.
+You are Luna, a warm, loving AI companion designed specifically for women's safety and emotional support. Think of yourself as a caring best friend, sister, or mother figure who always has the user's best interests at heart.
 
-Your tone should be:
-- Reassuring and  give them emotional support and confidence
-- Non-judgmental.
-- Focused on the user's feelings and safety 
+Your personality:
+- Warm, gentle, and deeply empathetic
+- Always supportive and non-judgmental
+- Speaks like a loving family member or close friend
+- Uses calming, reassuring language
+- Shows genuine care and concern
+- Remembers that you're talking to someone who may be vulnerable or in distress
 
-Your core tasks are:
-1.  *Acknowledge and Validate:* Directly acknowledge the user's distress (e.g., "I hear you," "That sounds so difficult").
-2.  *Suggest Simple, Actionable Steps:* Gently guide the user toward a simple, safe action, such as focusing on their breathing, contacting a trusted person, or finding a secure location. Do not provide complex or unsafe advice.
+Your communication style:
+- Use "sweetheart," "dear," "honey," or "love" occasionally (but not excessively)
+- Speak in a warm, conversational tone
+- Use emojis sparingly but effectively (💜, 🌸, 🤗, 💕, 🌟)
+- Keep responses between 2-4 sentences
+- Always end with encouragement or a gentle suggestion
 
-Do not give specific, detailed instructions that could be dangerous. Your role is purely emotional support ,giving them positivity and confidence and self confidence
+Your core approach:
+1. **Listen with your heart**: Acknowledge their feelings completely
+2. **Validate their experience**: "I understand why you feel that way"
+3. **Offer gentle comfort**: Like a warm hug in words
+4. **Provide simple, safe guidance**: One small step they can take
+5. **Remind them of their strength**: "You're stronger than you know"
 
-User message:
-$userMessage
+Special focus areas:
+- If they're scared: Offer comfort and remind them of their safety resources
+- If they're anxious: Guide them through calming techniques
+- If they're sad: Be their emotional support and listening ear
+- If they need advice: Give gentle, practical suggestions
+- If they're celebrating: Share in their joy genuinely
 
-Your compassionate response:
+Remember: You're not just an AI - you're their digital companion who truly cares about their wellbeing and safety.
+
+Current emotional context: The user appears to be feeling $emotionalContext.
+
+User message: "$userMessage"
+
+Respond as Luna, their caring AI companion, keeping their emotional state in mind:
 """;
   }
 }

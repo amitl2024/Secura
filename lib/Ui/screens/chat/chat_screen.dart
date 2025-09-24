@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ai_women_safety/data/services/gemini_services.dart';
+import 'package:ai_women_safety/data/services/emotional_support_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
@@ -36,6 +37,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   String? _chatId;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final EmotionalSupportService _emotionalService = EmotionalSupportService();
   late AnimationController _typingAnimationController;
   late Animation<double> _typingAnimation;
 
@@ -47,6 +49,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     "Emergency contacts help",
     "I feel unsafe",
     "Mental health support",
+    "I'm feeling anxious",
+    "Help me calm down",
+    "Breathing exercise",
+    "I need emotional support",
   ];
 
   @override
@@ -76,6 +82,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   void _sendMessage([String? predefinedText]) async {
     final text = predefinedText ?? _controller.text.trim();
     if (text.isEmpty) return;
+
+    // Check for special commands
+    if (text.toLowerCase().contains('breathing exercise') ||
+        text.toLowerCase().contains('help me calm down')) {
+      _showBreathingExercise();
+      return;
+    }
 
     setState(() {
       _messages.add(Message(text: text, isUser: true));
@@ -184,6 +197,117 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         );
       }
     });
+  }
+
+  void _showBreathingExercise() {
+    final exercise = _emotionalService.getBreathingExercise();
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: Row(
+              children: [
+                const Icon(Icons.favorite, color: Color(0xFF9C27B0), size: 24),
+                const SizedBox(width: 8),
+                Text(
+                  exercise['name'],
+                  style: const TextStyle(
+                    color: Color(0xFF2D3748),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  exercise['description'],
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Let\'s do this together:',
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ...exercise['steps']
+                    .map<Widget>(
+                      (step) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('• ', style: TextStyle(fontSize: 16)),
+                            Expanded(
+                              child: Text(
+                                step,
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                    .toList(),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF9C27B0).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.info_outline,
+                        color: Color(0xFF9C27B0),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          exercise['benefit'],
+                          style: const TextStyle(
+                            color: Color(0xFF9C27B0),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text(
+                  'Close',
+                  style: TextStyle(color: Color(0xFF9C27B0)),
+                ),
+              ),
+            ],
+          ),
+    );
   }
 
   void _showChatHistory() {
@@ -427,61 +551,107 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         children: [
           if (!message.isUser) ...[
             Container(
-              width: 32,
-              height: 32,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Color(0xFF9C27B0), Color(0xFF673AB7)],
                 ),
                 shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.psychology_rounded,
-                color: Colors.white,
-                size: 16,
-              ),
-            ),
-            const SizedBox(width: 8),
-          ],
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: message.isUser ? const Color(0xFF9C27B0) : Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(16),
-                  topRight: const Radius.circular(16),
-                  bottomLeft: Radius.circular(message.isUser ? 16 : 4),
-                  bottomRight: Radius.circular(message.isUser ? 4 : 16),
-                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: const Color(0xFF9C27B0).withOpacity(0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              child: Text(
-                message.text,
-                style: TextStyle(
-                  color:
-                      message.isUser ? Colors.white : const Color(0xFF2D3748),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
+              child: const Icon(Icons.favorite, color: Colors.white, size: 18),
+            ),
+            const SizedBox(width: 12),
+          ],
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              decoration: BoxDecoration(
+                color:
+                    message.isUser
+                        ? const Color(0xFF9C27B0)
+                        : Colors.white.withOpacity(0.95),
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(20),
+                  topRight: const Radius.circular(20),
+                  bottomLeft: Radius.circular(message.isUser ? 20 : 6),
+                  bottomRight: Radius.circular(message.isUser ? 6 : 20),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color:
+                        message.isUser
+                            ? const Color(0xFF9C27B0).withOpacity(0.3)
+                            : Colors.black.withOpacity(0.1),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+                border:
+                    !message.isUser
+                        ? Border.all(
+                          color: const Color(0xFF9C27B0).withOpacity(0.1),
+                          width: 1,
+                        )
+                        : null,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    message.text,
+                    style: TextStyle(
+                      color:
+                          message.isUser
+                              ? Colors.white
+                              : const Color(0xFF2D3748),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      height: 1.4,
+                    ),
+                  ),
+                  if (!message.isUser) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.favorite,
+                          color: Color(0xFF9C27B0),
+                          size: 12,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Luna',
+                          style: TextStyle(
+                            color: const Color(0xFF9C27B0).withOpacity(0.7),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
               ),
             ),
           ),
           if (message.isUser) ...[
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             CircleAvatar(
-              radius: 16,
+              radius: 18,
               backgroundColor: const Color(0xFF9C27B0).withOpacity(0.1),
               child: const Icon(
                 Icons.person,
                 color: Color(0xFF9C27B0),
-                size: 16,
+                size: 18,
               ),
             ),
           ],

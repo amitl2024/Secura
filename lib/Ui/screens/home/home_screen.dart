@@ -12,6 +12,7 @@ import 'package:ai_women_safety/data/services/admin_panel_service.dart';
 import 'package:ai_women_safety/data/models/emergency_contact.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:ai_women_safety/data/services/sms_service.dart';
+import 'package:ai_women_safety/Ui/screens/fake_call/fake_call_caller_selection_screen.dart';
 
 // Add this to your color palette for easy reuse
 const Color kPrimaryPink = Color(0xFFF8BBD0);
@@ -770,6 +771,24 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
                       context,
                       MaterialPageRoute(
                         builder: (context) => const EmergencyContactsScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionCard(
+                  "Fake Call",
+                  "Simulate incoming call",
+                  Icons.phone_in_talk_rounded,
+                  const Color(0xFF9C27B0),
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => const FakeCallCallerSelectionScreen(),
                       ),
                     );
                   },
