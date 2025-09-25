@@ -152,4 +152,16 @@ class FakeCallService {
       return false;
     }
   }
+
+  // Test ringtone functionality
+  Future<void> testRingtone() async {
+    print('🧪 Testing ringtone functionality...');
+    await _ringtoneService.startRingtone();
+
+    // Stop after 5 seconds for testing
+    Timer(const Duration(seconds: 5), () {
+      _ringtoneService.stopRingtone();
+      print('🧪 Ringtone test completed');
+    });
+  }
 }

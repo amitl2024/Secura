@@ -112,18 +112,19 @@ class _ProfileScreenState extends State<ProfileScreen>
             backgroundColor: const Color(0xFFCE93D8),
             backgroundImage:
                 _profilePicUrl.isNotEmpty ? NetworkImage(_profilePicUrl) : null,
-            child: _profilePicUrl.isEmpty
-                ? Text(
-                    _name.isNotEmpty
-                        ? _name.split(' ').map((e) => e[0]).join('')
-                        : "",
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  )
-                : null,
+            child:
+                _profilePicUrl.isEmpty
+                    ? Text(
+                      _name.isNotEmpty
+                          ? _name.split(' ').map((e) => e[0]).join('')
+                          : "",
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    )
+                    : null,
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -168,7 +169,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.location_on, size: 16, color: Color(0xFF9C27B0)),
+                    const Icon(
+                      Icons.location_on,
+                      size: 16,
+                      color: Color(0xFF9C27B0),
+                    ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
@@ -376,14 +381,15 @@ class _ProfileScreenState extends State<ProfileScreen>
       if (uid == null) return;
       await _firestore.collection('users').doc(uid).update({
         fieldKey == 'name'
-            ? 'name'
-            : fieldKey == 'email'
+                ? 'name'
+                : fieldKey == 'email'
                 ? 'email'
                 : fieldKey == 'phone'
-                    ? 'phone'
-                    : fieldKey == 'location'
-                        ? 'location'
-                        : fieldKey: value,
+                ? 'phone'
+                : fieldKey == 'location'
+                ? 'location'
+                : fieldKey:
+            value,
         'updatedAt': DateTime.now().toIso8601String(),
       });
     } catch (e) {
@@ -417,10 +423,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             children: [
               const Text(
                 'Edit Profile',
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
               ),
               const SizedBox(height: 12),
               _buildTextField('Full Name', Icons.person, nameController),
@@ -429,7 +432,11 @@ class _ProfileScreenState extends State<ProfileScreen>
               const SizedBox(height: 12),
               _buildTextField('Phone', Icons.phone, phoneController),
               const SizedBox(height: 12),
-              _buildTextField('Location', Icons.location_on, locationController),
+              _buildTextField(
+                'Location',
+                Icons.location_on,
+                locationController,
+              ),
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
@@ -459,7 +466,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text('Save Changes', style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    'Save Changes',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
