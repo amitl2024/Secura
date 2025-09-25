@@ -73,7 +73,7 @@ class SafetyAwarenessScreen extends StatelessWidget {
                     Icon(Icons.security, size: 40, color: Color(0xFFE91E63)),
                     SizedBox(height: 12),
                     Text(
-                      "Safety Center",
+                      "Safety Centerr",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 22,

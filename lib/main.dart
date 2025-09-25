@@ -12,7 +12,13 @@ import 'package:ai_women_safety/data/services/location_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await dotenv.load(fileName: "assets/.env");
+
+  // Load environment variables if .env file exists
+  try {
+    await dotenv.load(fileName: "assets/.env");
+  } catch (e) {
+    print('⚠️ .env file not found, using default configuration');
+  }
 
   // Initialize location service (request permissions)
   print('🚀 Initializing location service...');

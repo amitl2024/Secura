@@ -51,7 +51,6 @@ dependencies:
   permission_handler: ^11.3.1
   shared_preferences: ^2.2.2
   audioplayers: ^6.0.0
-  vibration: ^1.8.4
   
 
 dev_dependencies:

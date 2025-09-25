@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
-import 'package:vibration/vibration.dart';
 
 class RingtoneService {
   static final RingtoneService _instance = RingtoneService._internal();
@@ -135,7 +134,7 @@ class RingtoneService {
     });
   }
 
-  // Start vibration pattern
+  // Start haptic pattern (replaces vibration)
   void _startVibrationPattern() {
     _vibrationTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (_isPlaying) {
@@ -146,37 +145,23 @@ class RingtoneService {
     });
   }
 
-  // Vibrate with pattern
+  // Vibrate with haptic feedback pattern
   Future<void> _vibrate() async {
     try {
-      print('📳 Checking vibration support...');
-      // Check if device supports vibration
-      if (await Vibration.hasVibrator() ?? false) {
-        print('✅ Vibration supported - using vibration');
-        // Use vibration pattern
-        await Vibration.vibrate(duration: 1000);
-
-        // Add a pattern of vibrations
-        Future.delayed(const Duration(milliseconds: 100), () async {
-          if (_isPlaying && (await Vibration.hasVibrator() ?? false)) {
-            await Vibration.vibrate(duration: 500);
-          }
-        });
-      } else {
-        print('⚠️ Vibration not supported - using haptic feedback');
-        // Fallback to haptic feedback
-        HapticFeedback.heavyImpact();
-
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (_isPlaying) {
-            HapticFeedback.mediumImpact();
-          }
-        });
-      }
-    } catch (e) {
-      print('❌ Error vibrating: $e');
-      // Fallback to haptic feedback
+      print('📳 Using haptic feedback for vibration...');
+      // Use haptic feedback instead of vibration
       HapticFeedback.heavyImpact();
+
+      // Add a pattern of haptic feedback
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (_isPlaying) {
+          HapticFeedback.mediumImpact();
+        }
+      });
+    } catch (e) {
+      print('❌ Error with haptic feedback: $e');
+      // Fallback to light haptic feedback
+      HapticFeedback.lightImpact();
     }
   }
 
